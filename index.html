@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AURA - Лаборатория за сетивно аудио-заместване (SeeWithSound)</title>
+    
+    <!-- PWA Web App Manifest -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#050814">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+    <!-- Google Fonts: Outfit & Inter for premium typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="glow-orb" id="orb-1"></div>
+    <div class="glow-orb" id="orb-2"></div>
+
+    <div class="app-container">
+        <!-- HEADER -->
+        <header>
+            <div class="logo-area">
+                <span class="logo-icon">👁️‍🗨️</span>
+                <div>
+                    <h1>AURA</h1>
+                    <p class="subtitle">Сетивно аудио-заместване • Алгоритъм "The vOICe"</p>
+                </div>
+            </div>
+            <div class="header-controls">
+                <div class="toggle-container">
+                    <span class="toggle-label">Контур:</span>
+                    <label class="switch">
+                        <input type="checkbox" id="contour-toggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="toggle-container">
+                    <span class="toggle-label">Сляп режим:</span>
+                    <label class="switch">
+                        <input type="checkbox" id="blind-mode-toggle">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="toggle-container">
+                    <span class="toggle-label">Глас:</span>
+                    <label class="switch">
+                        <input type="checkbox" id="tts-toggle" checked>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+        </header>
+
+        <!-- MAIN GRID LAYOUT -->
+        <main class="main-grid">
+            
+            <!-- LEFT COLUMN: VIEWPORTS AND SONIFICATION VISUALS -->
+            <section class="left-column">
+                <!-- VIEWPORT CARD -->
+                <div class="card viewport-card">
+                    <div class="card-header">
+                        <h2>Визуален скенер</h2>
+                        <span class="badge" id="scan-status">Сканиране...</span>
+                    </div>
+                    <div class="viewport-wrapper">
+                        <!-- Visible Canvas -->
+                        <canvas id="viewport-canvas" width="480" height="320"></canvas>
+                        <!-- Sweep Scanline Indicator -->
+                        <div id="visual-scanline"></div>
+                    </div>
+                </div>
+
+                <!-- ANALYZER CARD (Oscilloscope / Spectrogram) -->
+                <div class="card analyzer-card">
+                    <div class="card-header">
+                        <h2>Аудио спектрограма (Честоти)</h2>
+                        <span class="freq-range">120 Hz — 1.6 kHz</span>
+                    </div>
+                    <div class="analyzer-wrapper">
+                        <canvas id="spectrogram-canvas" width="480" height="100"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- RIGHT COLUMN: DASHBOARD & CONTROLS -->
+            <section class="right-column">
+                
+                <!-- TRAINING STATUS & SCORE -->
+                <div class="card score-card">
+                    <div class="score-display">
+                        <div class="score-item">
+                            <span class="score-label">Резултат</span>
+                            <span class="score-value" id="current-score">0</span>
+                        </div>
+                        <div class="score-divider"></div>
+                        <div class="score-item">
+                            <span class="score-label">Разстояние</span>
+                            <span class="score-value" id="current-distance" style="color: #bd00ff;">1.0м</span>
+                        </div>
+                        <div class="score-divider"></div>
+                        <div class="score-item">
+                            <span class="score-label">Най-добър</span>
+                            <span class="score-value" id="high-score">0</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" id="lesson-progress-fill" style="width: 0%"></div>
+                    </div>
+                    <div class="lesson-info">
+                        <span id="current-lesson-title">Урок 1: Основни линии</span>
+                        <span id="streak-counter">Серия: 0 🔥</span>
+                    </div>
+                </div>
+
+                <!-- LESSON SELECTOR -->
+                <div class="card selection-card">
+                    <h2>Уроци за обучение</h2>
+                    <div class="lesson-buttons-grid">
+                        <button class="btn btn-lesson active" data-lesson="1" id="btn-lesson-1">
+                            <span class="num">1</span>
+                            <span class="txt">Линии<br><small>Хоризонтална / Вертикална</small></span>
+                        </button>
+                        <button class="btn btn-lesson" data-lesson="2" id="btn-lesson-2">
+                            <span class="num">2</span>
+                            <span class="txt">Фигури<br><small>Квадрат / Триъгълник / Кръг</small></span>
+                        </button>
+                        <button class="btn btn-lesson" data-lesson="3" id="btn-lesson-3">
+                            <span class="num">3</span>
+                            <span class="txt">Тест-предизвикателство<br><small>Всички форми + Дълбочина</small></span>
+                        </button>
+                        <button class="btn btn-lesson" data-lesson="4" id="btn-lesson-4">
+                            <span class="num">4</span>
+                            <span class="txt">Лов на фигури<br><small>Намерете и съберете 10 фигури</small></span>
+                        </button>
+                        <button class="btn btn-lesson" data-lesson="5" id="btn-lesson-5">
+                            <span class="num">5</span>
+                            <span class="txt">Обучение в Лабиринт<br><small>Навигирайте в празни коридори</small></span>
+                        </button>
+                        <button class="btn btn-lesson" data-lesson="6" id="btn-lesson-6">
+                            <span class="num">6</span>
+                            <span class="txt">Лов в Лабиринт<br><small>Намерете 10 фигури в лабиринта</small></span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- CONTROLS AND SLIDERS -->
+                <div class="card config-card">
+                    <h2>Аудио конфигурация</h2>
+                    
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Сила на звука</span>
+                            <span id="volume-val">30%</span>
+                        </div>
+                        <input type="range" id="volume-slider" min="0" max="100" value="30" class="slider-bar">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Скорост на сканиране</span>
+                            <span id="speed-val">1.6 сек</span>
+                        </div>
+                        <input type="range" id="speed-slider" min="6" max="35" value="16" class="slider-bar">
+                    </div>
+
+                    <div class="control-group">
+                        <div class="control-label">
+                            <span>Височина на човека</span>
+                            <span id="height-val">1.65 м</span>
+                        </div>
+                        <input type="range" id="height-slider" min="100" max="220" value="165" step="5" class="slider-bar">
+                    </div>
+
+                    <div class="audio-feedback-info">
+                        <p>💡 <strong>Как работи контурът:</strong> Контурните фигури звучат по-изчистено (като две отделни тънки линии на границите), докато плътните фигури запълват целия аудио диапазон.</p>
+                    </div>
+                </div>
+
+            </section>
+        </main>
+
+        <!-- FOOTER KEYBOARD & SYSTEM INTERACTION OVERLAYS -->
+        <footer class="footer-area">
+            <div class="card footer-card">
+                <h2>Контролен панел за навигация и отговори (Мобилен & Клавиатура)</h2>
+                
+                <div class="keyboard-grid">
+                    <!-- NAVIGATION D-PAD (MOBILE FIRST) -->
+                    <div class="control-panel-section movement-controls">
+                        <h3>1. Движение и Сканиране (Тъч / Стрелки)</h3>
+                        <div class="navigation-layout">
+                            <div class="dpad-wrapper">
+                                <button class="btn btn-dpad" id="btn-nav-up" aria-label="Напред">
+                                    <span class="dpad-symbol">▲</span>
+                                    <span class="dpad-txt">Напред</span>
+                                </button>
+                                <div class="dpad-middle-row">
+                                    <button class="btn btn-dpad" id="btn-nav-left" aria-label="Наляво">
+                                        <span class="dpad-symbol">◀</span>
+                                        <span class="dpad-txt">Наляво</span>
+                                    </button>
+                                    <div class="dpad-center-hub">👁️</div>
+                                    <button class="btn btn-dpad" id="btn-nav-right" aria-label="Надясно">
+                                        <span class="dpad-symbol">▶</span>
+                                        <span class="dpad-txt">Надясно</span>
+                                    </button>
+                                </div>
+                                <button class="btn btn-dpad" id="btn-nav-down" aria-label="Назад">
+                                    <span class="dpad-symbol">▼</span>
+                                    <span class="dpad-txt">Назад</span>
+                                </button>
+                            </div>
+                            
+                            <div class="keyboard-visualizer">
+                                <div class="key-row">
+                                    <div class="key" id="key-w">W</div>
+                                    <div class="key" id="key-ArrowUp">↑</div>
+                                </div>
+                                <div class="key-row">
+                                    <div class="key" id="key-a">A</div>
+                                    <div class="key" id="key-ArrowLeft">←</div>
+                                    <div class="key" id="key-s">S</div>
+                                    <div class="key" id="key-ArrowDown">↓</div>
+                                    <div class="key" id="key-d">D</div>
+                                    <div class="key" id="key-ArrowRight">→</div>
+                                </div>
+                                <span class="key-visual-label">Управление: Стрелки / WASD</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ANSWER KEYS -->
+                    <div class="control-panel-section shapes-inputs">
+                        <h3>2. Бутони за отговор (Изберете фигура)</h3>
+                        <div class="keys-row">
+                            <button class="btn btn-answer" data-answer="4" id="btn-ans-4">
+                                <span class="key-badge">4</span>
+                                <span class="key-symbol">▬</span>
+                                <span class="key-name">Хор. линия</span>
+                            </button>
+                            <button class="btn btn-answer" data-answer="5" id="btn-ans-5">
+                                <span class="key-badge">5</span>
+                                <span class="key-symbol">❚</span>
+                                <span class="key-name">Верт. линия</span>
+                            </button>
+                            <button class="btn btn-answer" data-answer="1" id="btn-ans-1">
+                                <span class="key-badge">1</span>
+                                <span class="key-symbol">⬛</span>
+                                <span class="key-name">Квадрат</span>
+                            </button>
+                            <button class="btn btn-answer" data-answer="2" id="btn-ans-2">
+                                <span class="key-badge">2</span>
+                                <span class="key-symbol">🔺</span>
+                                <span class="key-name">Триъгълник</span>
+                            </button>
+                            <button class="btn btn-answer" data-answer="3" id="btn-ans-3">
+                                <span class="key-badge">3</span>
+                                <span class="key-symbol">🟡</span>
+                                <span class="key-name">Кръг</span>
+                            </button>
+                            <button class="btn btn-answer" data-answer="r" id="btn-ans-r">
+                                <span class="key-badge">Р</span>
+                                <span class="key-symbol">╱</span>
+                                <span class="key-name">Накл. надясно</span>
+                            </button>
+                            <button class="btn btn-answer" data-answer="t" id="btn-ans-t">
+                                <span class="key-badge">Т</span>
+                                <span class="key-symbol">╲</span>
+                                <span class="key-name">Накл. наляво</span>
+                            </button>
+                            <button class="btn btn-answer" data-answer="o" id="btn-ans-o">
+                                <span class="key-badge">О</span>
+                                <span class="key-symbol">▰</span>
+                                <span class="key-name">Легнал правоъг.</span>
+                            </button>
+                            <button class="btn btn-answer" data-answer="p" id="btn-ans-p">
+                                <span class="key-badge">П</span>
+                                <span class="key-symbol">▱</span>
+                                <span class="key-name">Изправен правоъг.</span>
+                            </button>
+                            <button class="btn btn-answer" data-answer="v" id="btn-ans-v">
+                                <span class="key-badge">В</span>
+                                <span class="key-symbol">❖</span>
+                                <span class="key-name">Ромб</span>
+                            </button>
+                            <button class="btn btn-answer" data-answer="i" id="btn-ans-i">
+                                <span class="key-badge">И</span>
+                                <span class="key-symbol">▼</span>
+                                <span class="key-name">Обърнат триъг.</span>
+                            </button>
+                        </div>
+                        <h3 style="margin-top: 15px;">3. Подсказки за Лов на фигури</h3>
+                        <div class="keys-row">
+                            <button class="btn btn-answer" id="btn-hint-direction" style="flex: 1; min-width: 140px;">
+                                <span class="key-badge">E</span>
+                                <span class="key-symbol">🧭</span>
+                                <span class="key-name">Накъде да вървя</span>
+                            </button>
+                            <button class="btn btn-answer" id="btn-hint-target" style="flex: 1; min-width: 140px;">
+                                <span class="key-badge">F</span>
+                                <span class="key-symbol">❓</span>
+                                <span class="key-name">Коя фигура търся</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </footer>
+
+        <!-- Hidden canvas for the pure white-on-black image extraction -->
+        <canvas id="hidden-scanner-canvas" width="128" height="128" style="display: none;"></canvas>
+    </div>
+
+    <!-- AUDIO INITIALIZATION MODAL (AUTOPLAY FIX) -->
+    <div id="intro-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2>Добре дошли в AURA</h2>
+            <p>Тази лаборатория е симулатор на <strong>сетивно аудио-заместване</strong> по метода <strong>SeeWithSound (The vOICe)</strong>.</p>
+            <p>Тя ви позволява да "виждате" контури на геометрични фигури чрез звукови профили. Разработена специално за мобилни телефони и незрящи потребители.</p>
+            <button class="btn btn-primary" id="btn-start-app">СТАРТИРАЙ ОБУЧЕНИЕТО</button>
+            <p class="modal-hint">Натиснете бутона или произволен клавиш, за да разрешите генерирането на звук.</p>
+        </div>
+    </div>
+
+    <!-- ESCAPE MENU MODAL -->
+    <div id="escape-menu" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h2>Избор на ниво</h2>
+            <p>Изберете ниво, което искате да играете:</p>
+            <div class="menu-buttons-grid">
+                <button class="btn btn-primary btn-menu-item" data-level="1">1. Основни линии (клавиш 1)</button>
+                <button class="btn btn-primary btn-menu-item" data-level="2">2. Прости фигури (клавиш 2)</button>
+                <button class="btn btn-primary btn-menu-item" data-level="3">3. Тест-предизвикателство (клавиш 3)</button>
+                <button class="btn btn-primary btn-menu-item" data-level="4">4. Лов на фигури (клавиш 4)</button>
+                <button class="btn btn-primary btn-menu-item" data-level="5">5. Обучение в лабиринт (клавиш 5)</button>
+                <button class="btn btn-primary btn-menu-item" data-level="6">6. Лов в лабиринт (клавиш 6)</button>
+            </div>
+            <button class="btn btn-secondary" id="btn-close-menu" style="margin-top: 15px;">Затвори (Esc)</button>
+        </div>
+    </div>
+
+    <script src="voice-synth.js"></script>
+    <script src="shape-renderer.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
